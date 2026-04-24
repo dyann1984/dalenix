@@ -1,0 +1,1 @@
+﻿{"appId":"com.dalenix.app","appName":"DALENIX","webDir":"www","bundledWebRuntime":false,"android":{"allowMixedContent":true},"plugins":{"SplashScreen":{"launchShowDuration":2000,"backgroundColor":"#020814","showSpinner":false},"StatusBar":{"style":"DARK","backgroundColor":"#020814"}}}

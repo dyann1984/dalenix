@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#020814">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DALENIX">
+<title>DALENIX</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600&display=swap');
+
+:root {
+  --blue:    #5AADFF;
+  --blue2:   #1A6FD4;
+  --gold:    #C8900A;
+  --goldf:   #FFD060;
+  --bg:      #020814;
+  --bg2:     #040F22;
+  --bg3:     #071530;
+  --border:  rgba(90,173,255,0.18);
+  --border2: rgba(90,173,255,0.32);
+  --text:    #A8C8E8;
+  --text2:   #5A80A0;
+  --text3:   #D8EEFF;
+  --green:   #39D368;
+  --red:     #FF4455;
+  --safe:    env(safe-area-inset-bottom, 0px);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;background:var(--bg);}
+body{font-family:'Rajdhani',sans-serif;color:var(--text);display:flex;flex-direction:column;touch-action:manipulation;}
+
+/* ── STATUS BAR SPACER ── */
+.status-spacer{height:env(safe-area-inset-top,0px);background:var(--bg);}
+
+/* ── TOP HEADER ── */
+.header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px 10px;
+  background:rgba(2,8,20,0.97);
+  border-bottom:0.5px solid var(--border);
+  flex-shrink:0;
+  position:relative;
+  z-index:50;
+}
+.hlogo{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;letter-spacing:4px;background:linear-gradient(180deg,#5AADFF,#1A6FD4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hlogo .ag{background:linear-gradient(180deg,#FFD060,#C8900A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hslogan{font-family:'Share Tech Mono',monospace;font-size:7px;color:rgba(90,173,255,0.45);letter-spacing:1.5px;margin-top:1px;}
+.hright{display:flex;gap:8px;align-items:center;}
+.hpill{display:flex;align-items:center;gap:5px;font-family:'Share Tech Mono',monospace;font-size:8px;padding:4px 9px;border-radius:20px;border:0.5px solid;}
+.hpill.sim{border-color:rgba(200,144,10,0.4);color:var(--goldf);background:rgba(200,144,10,0.1);}
+.hpill.ok{border-color:rgba(90,173,255,0.35);color:var(--blue);background:rgba(26,111,212,0.1);}
+.pdot{width:5px;height:5px;border-radius:50%;animation:blink 2s infinite;}
+.pdot.g{background:var(--goldf);box-shadow:0 0 4px var(--goldf);}
+.pdot.b{background:var(--blue);box-shadow:0 0 4px var(--blue);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* ── SCROLL AREA ── */
+.scroll-area{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
+.scroll-area::-webkit-scrollbar{display:none;}
+
+/* ── PAGES ── */
+.page{display:none;padding:14px 14px calc(80px + var(--safe)) 14px;}
+.page.active{display:block;}
+
+/* ── CARDS ── */
+.card{background:var(--bg2);border:0.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;}
+.card-title{font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;color:rgba(90,173,255,0.6);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.card-title::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--blue);box-shadow:0 0 6px var(--blue);flex-shrink:0;}
+.card-title.gold-t::before{background:var(--gold);box-shadow:0 0 6px var(--gold);}
+
+/* ── METRIC ROW ── */
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.metric-cell{background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
+.metric-val{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:500;color:var(--text3);line-height:1;}
+.metric-lbl{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text2);margin-top:4px;letter-spacing:1px;}
+.metric-cell.accent-b{border-top:2px solid var(--blue);}
+.metric-cell.accent-g{border-top:2px solid var(--gold);}
+.metric-cell.accent-gr{border-top:2px solid var(--green);}
+.metric-cell.accent-r{border-top:2px solid var(--red);}
+
+/* ── SENSOR BARS ── */
+.sensor-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.s-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text2);min-width:32px;}
+.s-track{flex:1;height:6px;background:rgba(90,173,255,0.08);border-radius:3px;overflow:hidden;}
+.s-fill{height:100%;border-radius:3px;transition:width 0.5s;}
+.s-fill.em{background:linear-gradient(90deg,#5AADFF,rgba(90,173,255,0.3));}
+.s-fill.gpr{background:linear-gradient(90deg,#1A6FD4,rgba(26,111,212,0.3));}
+.s-fill.ert{background:linear-gradient(90deg,#C8900A,rgba(200,144,10,0.3));}
+.s-val{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text2);min-width:30px;text-align:right;}
+
+/* ── WAVEFORM ── */
+.wave-wrap{height:64px;margin-top:8px;}
+.wave-wrap canvas{width:100%;height:100%;}
+
+/* ── SCAN BUTTON ── */
+.scan-btn-big{
+  width:100%;padding:16px;
+  font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;
+  border-radius:12px;border:0.5px solid var(--border2);
+  background:rgba(26,111,212,0.15);color:var(--blue);
+  cursor:pointer;text-transform:uppercase;
+  transition:all 0.2s;margin-bottom:12px;
+  -webkit-user-select:none;user-select:none;
+}
+.scan-btn-big:active{transform:scale(0.98);}
+.scan-btn-big.scanning{background:rgba(200,144,10,0.18);color:var(--goldf);border-color:rgba(200,144,10,0.4);animation:scanpulse 1.2s infinite;}
+@keyframes scanpulse{0%,100%{opacity:1}50%{opacity:0.65}}
+
+/* ── DEPTH SLIDER ── */
+.depth-section{margin-bottom:12px;}
+.depth-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.depth-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text2);letter-spacing:1.5px;}
+.depth-val{font-family:'Orbitron',sans-serif;font-size:18px;color:var(--text3);}
+input[type=range]{width:100%;-webkit-appearance:none;height:5px;background:rgba(90,173,255,0.15);border-radius:3px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--blue);box-shadow:0 0 8px var(--blue);cursor:pointer;}
+
+/* ── MAP 3D ── */
+.map3d-container{
+  width:100%;
+  aspect-ratio:1/0.75;
+  background:#010810;
+  border-radius:12px;
+  overflow:hidden;
+  position:relative;
+  margin-bottom:12px;
+}
+#mobileCanvas{display:block;width:100%;height:100%;}
+.map-overlay-mob{
+  position:absolute;top:8px;left:8px;right:8px;
+  display:flex;justify-content:space-between;
+  pointer-events:none;
+}
+.mob-badge{font-family:'Share Tech Mono',monospace;font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(2,8,20,0.85);border:0.5px solid var(--border);color:var(--blue);}
+.map-legend-mob{position:absolute;bottom:8px;left:8px;}
+.leg-row{display:flex;align-items:center;gap:5px;margin-bottom:3px;}
+.leg-dot{width:8px;height:8px;border-radius:2px;}
+.leg-txt{font-size:9px;color:var(--text);}
+
+/* ── ANOMALY CARDS ── */
+.anomaly-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:10px;
+  background:var(--bg3);border:0.5px solid var(--border);
+  margin-bottom:8px;cursor:pointer;
+  transition:border-color 0.2s;
+  -webkit-user-select:none;user-select:none;
+}
+.anomaly-item:active{border-color:var(--border2);}
+.anom-icon{font-size:20px;flex-shrink:0;}
+.anom-info{flex:1;}
+.anom-type{font-family:'Orbitron',sans-serif;font-size:10px;color:var(--text3);margin-bottom:2px;}
+.anom-depth{font-size:11px;color:var(--text2);}
+.anom-conf{font-family:'Share Tech Mono',monospace;font-size:10px;padding:3px 8px;border-radius:4px;}
+.anom-conf.hi{background:rgba(57,211,104,0.12);border:0.5px solid rgba(57,211,104,0.3);color:var(--green);}
+.anom-conf.md{background:rgba(200,144,10,0.12);border:0.5px solid rgba(200,144,10,0.3);color:var(--goldf);}
+.anom-conf.lo{background:rgba(90,173,255,0.12);border:0.5px solid var(--border2);color:var(--blue);}
+
+/* ── READINGS LIVE ── */
+.live-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.live-cell{background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:9px 6px;text-align:center;}
+.live-val{font-family:'Orbitron',sans-serif;font-size:13px;color:var(--text3);}
+.live-lbl{font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text2);margin-top:3px;}
+
+/* ── AI RESULT ── */
+.ai-card{background:var(--bg2);border:0.5px solid rgba(200,144,10,0.28);border-radius:14px;padding:14px;margin-bottom:12px;}
+.ai-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.ai-icon-box{width:34px;height:34px;border-radius:8px;background:rgba(200,144,10,0.15);border:0.5px solid rgba(200,144,10,0.3);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.ai-title{font-family:'Orbitron',sans-serif;font-size:10px;color:var(--goldf);letter-spacing:1px;}
+.ai-sub{font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text2);margin-top:2px;}
+.ai-body{font-size:12px;color:var(--text);line-height:1.7;margin-bottom:10px;}
+.ai-tags{display:flex;flex-wrap:wrap;gap:5px;}
+.ai-tag{font-family:'Share Tech Mono',monospace;font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(26,111,212,0.12);border:0.5px solid var(--border2);color:var(--blue);}
+
+/* ── CHART AREA ── */
+.chart-wrap{height:120px;position:relative;margin-top:6px;}
+.chart-wrap canvas{width:100%;height:100%;}
+
+/* ── STAT ROWS ── */
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border);}
+.stat-row:last-child{border-bottom:none;}
+.stat-k{font-size:12px;color:var(--text2);}
+.stat-v{font-family:'Orbitron',sans-serif;font-size:12px;color:var(--text3);}
+
+/* ── REPORT TABLE (scroll) ── */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.rtable{width:100%;min-width:500px;border-collapse:collapse;}
+.rtable th{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;color:rgba(90,173,255,0.5);text-align:left;padding:8px 10px;border-bottom:0.5px solid var(--border);text-transform:uppercase;white-space:nowrap;}
+.rtable td{font-size:11px;padding:10px 10px;border-bottom:0.5px solid rgba(90,173,255,0.07);color:var(--text);vertical-align:middle;}
+.rtable tr:active td{background:rgba(90,173,255,0.03);}
+.tbadge{font-family:'Share Tech Mono',monospace;font-size:8px;padding:2px 7px;border-radius:3px;white-space:nowrap;}
+.tbadge.agua{background:rgba(90,173,255,0.1);border:0.5px solid var(--border2);color:var(--blue);}
+.tbadge.cav{background:rgba(200,144,10,0.1);border:0.5px solid rgba(200,144,10,0.3);color:var(--goldf);}
+.tbadge.min{background:rgba(57,211,104,0.1);border:0.5px solid rgba(57,211,104,0.3);color:var(--green);}
+
+/* ── CONFIG ── */
+.cfg-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:0.5px solid var(--border);}
+.cfg-row:last-child{border-bottom:none;}
+.cfg-k{font-size:13px;color:var(--text);}
+select.cfg-sel{background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;color:var(--text3);font-family:'Share Tech Mono',monospace;font-size:9px;padding:6px 8px;cursor:pointer;outline:none;-webkit-appearance:none;max-width:140px;}
+.conn-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;margin-bottom:8px;}
+.conn-name{font-size:12px;color:var(--text);flex:1;}
+.conn-badge{font-family:'Share Tech Mono',monospace;font-size:8px;padding:2px 7px;border-radius:3px;}
+.conn-badge.sim{background:rgba(200,144,10,0.12);border:0.5px solid rgba(200,144,10,0.3);color:var(--goldf);}
+.conn-badge.off{background:rgba(168,200,232,0.07);border:0.5px solid rgba(168,200,232,0.18);color:var(--text2);}
+.conn-badge.on{background:rgba(57,211,104,0.1);border:0.5px solid rgba(57,211,104,0.3);color:var(--green);}
+.conn-btn{font-family:'Orbitron',sans-serif;font-size:7px;padding:5px 10px;border-radius:5px;border:0.5px solid var(--border2);background:rgba(26,111,212,0.15);color:var(--blue);cursor:pointer;letter-spacing:1px;}
+
+/* ── ACTION BTNS ── */
+.action-row{display:flex;gap:8px;margin-bottom:12px;}
+.abtn{flex:1;padding:12px 8px;font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:1.5px;border-radius:10px;border:0.5px solid;cursor:pointer;text-align:center;transition:all 0.15s;-webkit-user-select:none;user-select:none;}
+.abtn:active{transform:scale(0.97);}
+.abtn.primary{background:rgba(26,111,212,0.18);border-color:var(--border2);color:var(--blue);}
+.abtn.gold{background:rgba(200,144,10,0.15);border-color:rgba(200,144,10,0.35);color:var(--goldf);}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:rgba(2,8,20,0.97);
+  border-top:0.5px solid var(--border);
+  display:flex;
+  padding-bottom:var(--safe);
+  z-index:100;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  padding:10px 4px 8px;cursor:pointer;
+  transition:color 0.2s;
+  -webkit-user-select:none;user-select:none;
+  border:none;background:none;
+}
+.nav-item:active{opacity:0.7;}
+.nav-icon{font-size:20px;line-height:1;margin-bottom:3px;transition:transform 0.2s;}
+.nav-item.active .nav-icon{transform:scale(1.15);}
+.nav-label{font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:1px;color:var(--text2);transition:color 0.2s;}
+.nav-item.active .nav-label{color:var(--blue);}
+.nav-item.active .nav-icon{filter:drop-shadow(0 0 4px var(--blue));}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);
+  background:rgba(10,25,55,0.95);border:0.5px solid var(--border2);
+  border-radius:10px;padding:10px 18px;
+  font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--blue);
+  opacity:0;transition:all 0.3s;z-index:200;white-space:nowrap;
+  pointer-events:none;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── SECTION TITLE ── */
+.sect-title{font-family:'Orbitron',sans-serif;font-size:13px;color:var(--text3);letter-spacing:2px;margin-bottom:14px;}
+</style>
+</head>
+<body>
+
+<div class="status-spacer"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <div class="hlogo">D<span class="ag">A</span>LENIX</div>
+    <div class="hslogan">Detecta · Analiza · Protege</div>
+  </div>
+  <div class="hright">
+    <div class="hpill sim"><div class="pdot g"></div>SIM</div>
+    <div class="hpill ok"><div class="pdot b"></div>OK</div>
+  </div>
+</div>
+
+<!-- SCROLL AREA -->
+<div class="scroll-area" id="scrollArea">
+
+  <!-- ════ PAGE: SCAN ════ -->
+  <div class="page active" id="p-scan">
+
+    <!-- Mapa 3D -->
+    <div class="map3d-container">
+      <canvas id="mobileCanvas"></canvas>
+      <div class="map-overlay-mob">
+        <div class="mob-badge" id="mScanStatus">● ACTIVO</div>
+        <div class="mob-badge" id="mDepthBadge">40m</div>
+      </div>
+      <div class="map-legend-mob">
+        <div class="leg-row"><div class="leg-dot" style="background:#1E90FF"></div><div class="leg-txt">Agua</div></div>
+        <div class="leg-row"><div class="leg-dot" style="background:#C8900A"></div><div class="leg-txt">Cavidad</div></div>
+        <div class="leg-row"><div class="leg-dot" style="background:#39D368"></div><div class="leg-txt">Mineral</div></div>
+      </div>
+    </div>
+
+    <!-- Profundidad -->
+    <div class="card">
+      <div class="depth-section">
+        <div class="depth-header">
+          <div class="depth-label">PROFUNDIDAD OBJETIVO</div>
+          <div class="depth-val"><span id="dv">40</span>m</div>
+        </div>
+        <input type="range" min="1" max="200" value="40" id="depthSlider" oninput="setDepth(this.value)">
+      </div>
+      <button class="scan-btn-big" id="scanBtn" onclick="toggleScan()">▶ INICIAR ESCANEO</button>
+      <!-- Lecturas live -->
+      <div class="live-grid">
+        <div class="live-cell"><div class="live-val" id="lv1">247</div><div class="live-lbl">mV EM</div></div>
+        <div class="live-cell"><div class="live-val" id="lv2">18.4</div><div class="live-lbl">m GPR</div></div>
+        <div class="live-cell"><div class="live-val" id="lv3">1.2k</div><div class="live-lbl">Ω ERT</div></div>
+      </div>
+    </div>
+
+    <!-- Señal EM -->
+    <div class="card">
+      <div class="card-title">Señal EM en tiempo real</div>
+      <div class="wave-wrap"><canvas id="waveCanvas"></canvas></div>
+    </div>
+
+    <!-- Sensores -->
+    <div class="card">
+      <div class="card-title">Estado de sensores</div>
+      <div class="sensor-row">
+        <div class="s-label">EM</div>
+        <div class="s-track"><div class="s-fill em" id="sb-em" style="width:75%"></div></div>
+        <div class="s-val" id="sv-em">75%</div>
+      </div>
+      <div class="sensor-row">
+        <div class="s-label">GPR</div>
+        <div class="s-track"><div class="s-fill gpr" id="sb-gpr" style="width:60%"></div></div>
+        <div class="s-val" id="sv-gpr">60%</div>
+      </div>
+      <div class="sensor-row" style="margin-bottom:0">
+        <div class="s-label">ERT</div>
+        <div class="s-track"><div class="s-fill ert" id="sb-ert" style="width:88%"></div></div>
+        <div class="s-val" id="sv-ert">88%</div>
+      </div>
+    </div>
+
+    <!-- Anomalías -->
+    <div class="card">
+      <div class="card-title gold-t">Anomalías detectadas</div>
+      <div class="anomaly-item" onclick="showToast('Acuífero — 18–24m')">
+        <div class="anom-icon">💧</div>
+        <div class="anom-info">
+          <div class="anom-type">Acuífero freático</div>
+          <div class="anom-depth">18–24m · ~120m²</div>
+        </div>
+        <div class="anom-conf hi">94%</div>
+      </div>
+      <div class="anomaly-item" onclick="showToast('Cavidad — 8–12m')">
+        <div class="anom-icon">⬡</div>
+        <div class="anom-info">
+          <div class="anom-type">Cavidad subterránea</div>
+          <div class="anom-depth">8–12m · ~30m²</div>
+        </div>
+        <div class="anom-conf md">71%</div>
+      </div>
+      <div class="anomaly-item" onclick="showToast('Mineral — 32–38m')">
+        <div class="anom-icon">◆</div>
+        <div class="anom-info">
+          <div class="anom-type">Cuerpo mineral</div>
+          <div class="anom-depth">32–38m · ~60m²</div>
+        </div>
+        <div class="anom-conf lo">55%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ PAGE: ANÁLISIS ════ -->
+  <div class="page" id="p-analysis">
+
+    <div class="ai-card">
+      <div class="ai-head">
+        <div class="ai-icon-box">🤖</div>
+        <div>
+          <div class="ai-title">ANÁLISIS IA — DALENIX</div>
+          <div class="ai-sub">Rancho San Miguel · 24 Abr 2026 · Global: 87%</div>
+        </div>
+      </div>
+      <div class="ai-body">
+        Se detectó un <strong style="color:#5AADFF">acuífero freático de alto potencial</strong> a 18–24m. Resistividad eléctrica indica saturación hídrica alta. Perforación recomendada en zona marcada.<br><br>
+        <strong style="color:var(--goldf)">Cavidad subterránea</strong> a 8–12m representa riesgo geotécnico moderado. Evitar construcción sin estudios adicionales.
+      </div>
+      <div class="ai-tags">
+        <span class="ai-tag">Acuífero confirmado</span>
+        <span class="ai-tag">Riesgo Z2</span>
+        <span class="ai-tag">Perforación: 20m</span>
+        <span class="ai-tag">ERT: 1.2 kΩ·m</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Perfil de resistividad ERT</div>
+      <div class="chart-wrap"><canvas id="chartRes"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Señal GPR — profundidad</div>
+      <div class="chart-wrap"><canvas id="chartGPR"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Estadísticas del escaneo</div>
+      <div class="stat-row"><span class="stat-k">Área escaneada</span><span class="stat-v">320 m²</span></div>
+      <div class="stat-row"><span class="stat-k">Puntos de datos</span><span class="stat-v">1,024</span></div>
+      <div class="stat-row"><span class="stat-k">Duración</span><span class="stat-v">14 min</span></div>
+      <div class="stat-row"><span class="stat-k">Sensores activos</span><span class="stat-v">3 / 3</span></div>
+      <div class="stat-row"><span class="stat-k">Anomalías detectadas</span><span class="stat-v">3</span></div>
+      <div class="stat-row"><span class="stat-k">Confianza global</span><span class="stat-v" style="color:#39D368">87%</span></div>
+    </div>
+
+    <div class="metric-grid">
+      <div class="metric-cell accent-b"><div class="metric-val">247<span style="font-size:12px">mV</span></div><div class="metric-lbl">EM promedio</div></div>
+      <div class="metric-cell accent-g"><div class="metric-val">1.2<span style="font-size:12px">kΩ</span></div><div class="metric-lbl">ERT promedio</div></div>
+      <div class="metric-cell accent-gr"><div class="metric-val">18<span style="font-size:12px">m</span></div><div class="metric-lbl">GPR prom.</div></div>
+      <div class="metric-cell accent-r"><div class="metric-val">LOW</div><div class="metric-lbl">Riesgo global</div></div>
+    </div>
+  </div>
+
+  <!-- ════ PAGE: REPORTES ════ -->
+  <div class="page" id="p-reports">
+    <div class="sect-title">Reportes</div>
+
+    <div class="action-row">
+      <div class="abtn primary" onclick="showToast('Nuevo escaneo iniciado')">+ Nuevo</div>
+      <div class="abtn gold" onclick="showToast('Exportando PDF...')">⬇ PDF</div>
+      <div class="abtn primary" onclick="showToast('Exportando CSV...')">⬇ CSV</div>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="table-wrap">
+        <table class="rtable">
+          <thead>
+            <tr>
+              <th>Proyecto</th>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>Conf.</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Rancho San Miguel</td>
+              <td style="font-family:'Share Tech Mono',monospace;font-size:9px;white-space:nowrap">24 Abr 26</td>
+              <td><span class="tbadge agua">Agua</span></td>
+              <td style="color:#39D368;font-family:'Orbitron',sans-serif;font-size:10px;">94%</td>
+              <td style="color:#39D368;font-size:10px;white-space:nowrap">● OK</td>
+            </tr>
+            <tr>
+              <td>Obra Tepic Norte</td>
+              <td style="font-family:'Share Tech Mono',monospace;font-size:9px;white-space:nowrap">22 Abr 26</td>
+              <td><span class="tbadge cav">Cavidad</span></td>
+              <td style="color:var(--goldf);font-family:'Orbitron',sans-serif;font-size:10px;">71%</td>
+              <td style="color:var(--goldf);font-size:10px;white-space:nowrap">● Rev.</td>
+            </tr>
+            <tr>
+              <td>Mina El Refugio</td>
+              <td style="font-family:'Share Tech Mono',monospace;font-size:9px;white-space:nowrap">18 Abr 26</td>
+              <td><span class="tbadge min">Mineral</span></td>
+              <td style="color:var(--blue);font-family:'Orbitron',sans-serif;font-size:10px;">61%</td>
+              <td style="color:#39D368;font-size:10px;white-space:nowrap">● OK</td>
+            </tr>
+            <tr>
+              <td>Ejido Los Fresnos</td>
+              <td style="font-family:'Share Tech Mono',monospace;font-size:9px;white-space:nowrap">10 Abr 26</td>
+              <td><span class="tbadge agua">Agua</span></td>
+              <td style="color:#39D368;font-family:'Orbitron',sans-serif;font-size:10px;">88%</td>
+              <td style="color:#39D368;font-size:10px;white-space:nowrap">● OK</td>
+            </tr>
+            <tr>
+              <td>Constructora GAMA</td>
+              <td style="font-family:'Share Tech Mono',monospace;font-size:9px;white-space:nowrap">05 Abr 26</td>
+              <td><span class="tbadge cav">Cavidad</span></td>
+              <td style="color:#FF4455;font-family:'Orbitron',sans-serif;font-size:10px;">83%</td>
+              <td style="color:#FF4455;font-size:10px;white-space:nowrap">⚠ Riesgo</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ PAGE: CONFIGURACIÓN ════ -->
+  <div class="page" id="p-config">
+    <div class="sect-title">Configuración</div>
+
+    <div class="card">
+      <div class="card-title">Parámetros de escaneo</div>
+      <div class="cfg-row">
+        <div class="cfg-k">Modo</div>
+        <select class="cfg-sel" onchange="showToast('Modo: '+this.value)">
+          <option>Simulado</option>
+          <option>Hardware real</option>
+          <option>Mixto</option>
+        </select>
+      </div>
+      <div class="cfg-row">
+        <div class="cfg-k">Frecuencia EM</div>
+        <select class="cfg-sel">
+          <option>10 kHz</option>
+          <option>50 kHz</option>
+          <option>100 kHz</option>
+        </select>
+      </div>
+      <div class="cfg-row">
+        <div class="cfg-k">Resolución 3D</div>
+        <select class="cfg-sel">
+          <option>Alta — 1024 pts</option>
+          <option>Media — 512 pts</option>
+          <option>Baja — 256 pts</option>
+        </select>
+      </div>
+      <div class="cfg-row">
+        <div class="cfg-k">Umbral IA</div>
+        <select class="cfg-sel">
+          <option>50% confianza</option>
+          <option>70% confianza</option>
+          <option>90% confianza</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Conexión hardware</div>
+      <div class="conn-row">
+        <div class="pdot g" style="width:7px;height:7px;border-radius:50%;flex-shrink:0;"></div>
+        <div class="conn-name">Sensor EM — ESP32</div>
+        <div class="conn-badge sim">SIM</div>
+        <button class="conn-btn" onclick="showToast('Buscando ESP32...')">Conectar</button>
+      </div>
+      <div class="conn-row">
+        <div style="width:7px;height:7px;border-radius:50%;background:rgba(168,200,232,0.18);flex-shrink:0;"></div>
+        <div class="conn-name">GPR Compacto</div>
+        <div class="conn-badge off">OFF</div>
+        <button class="conn-btn" onclick="showToast('Buscando GPR...')">Conectar</button>
+      </div>
+      <div class="conn-row">
+        <div style="width:7px;height:7px;border-radius:50%;background:rgba(168,200,232,0.18);flex-shrink:0;"></div>
+        <div class="conn-name">ERT — Electrodos</div>
+        <div class="conn-badge off">OFF</div>
+        <button class="conn-btn" onclick="showToast('Buscando ERT...')">Conectar</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Dispositivo</div>
+      <div class="stat-row"><span class="stat-k">Versión</span><span class="stat-v">v1.0.0-sim</span></div>
+      <div class="stat-row"><span class="stat-k">Modelo</span><span class="stat-v">DALENIX Portátil</span></div>
+      <div class="stat-row"><span class="stat-k">Batería</span><span class="stat-v" style="color:#39D368">87%</span></div>
+      <div class="stat-row"><span class="stat-k">Almacenamiento</span><span class="stat-v">2.1 / 16 GB</span></div>
+    </div>
+
+    <div class="action-row">
+      <div class="abtn primary" onclick="showToast('Sincronizando con nube...')">☁ Sincronizar</div>
+      <div class="abtn gold" onclick="showToast('Instalando como app...')">📲 Instalar app</div>
+    </div>
+  </div>
+
+</div><!-- /scroll-area -->
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" id="nav-scan" onclick="goPage('scan',this)">
+    <div class="nav-icon">◈</div>
+    <div class="nav-label">ESCANEO</div>
+  </button>
+  <button class="nav-item" id="nav-analysis" onclick="goPage('analysis',this)">
+    <div class="nav-icon">⬡</div>
+    <div class="nav-label">ANÁLISIS</div>
+  </button>
+  <button class="nav-item" id="nav-reports" onclick="goPage('reports',this)">
+    <div class="nav-icon">☰</div>
+    <div class="nav-label">REPORTES</div>
+  </button>
+  <button class="nav-item" id="nav-config" onclick="goPage('config',this)">
+    <div class="nav-icon">⚙</div>
+    <div class="nav-label">CONFIG</div>
+  </button>
+</nav>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ── NAVIGATION ──
+function goPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('p-'+id).classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('scrollArea').scrollTop = 0;
+  if (id==='analysis') { setTimeout(drawCharts, 100); }
+}
+
+// ── TOAST ──
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── DEPTH ──
+function setDepth(v) {
+  document.getElementById('dv').textContent = v;
+  document.getElementById('mDepthBadge').textContent = v + 'm';
+  document.getElementById('lv2').textContent = (v*0.46).toFixed(1);
+}
+
+// ── SCAN TOGGLE ──
+let scanning = false;
+function toggleScan() {
+  scanning = !scanning;
+  const btn = document.getElementById('scanBtn');
+  const st  = document.getElementById('mScanStatus');
+  if (scanning) {
+    btn.textContent = '■ DETENER ESCANEO';
+    btn.classList.add('scanning');
+    st.textContent = '● ESCANEANDO...';
+    showToast('Escaneo iniciado');
+  } else {
+    btn.textContent = '▶ INICIAR ESCANEO';
+    btn.classList.remove('scanning');
+    st.textContent = '● ACTIVO';
+    showToast('Escaneo detenido');
+  }
+}
+
+// ── THREE.JS MAP (mobile optimized) ──
+(function(){
+  const canvas = document.getElementById('mobileCanvas');
+  const renderer = new THREE.WebGLRenderer({canvas, antialias:false, alpha:false});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x010810);
+  scene.fog = new THREE.FogExp2(0x010810, 0.04);
+  const camera = new THREE.PerspectiveCamera(55,1,0.1,150);
+  camera.position.set(0,12,20);
+  camera.lookAt(0,-2,0);
+
+  // Grid
+  scene.add(new THREE.GridHelper(24,24,0x1A3A5A,0x0D2035));
+
+  // Layers
+  function layer(y,color,op,s){
+    const m=new THREE.Mesh(new THREE.PlaneGeometry(s,s),new THREE.MeshBasicMaterial({color,transparent:true,opacity:op,side:THREE.DoubleSide}));
+    m.rotation.x=-Math.PI/2; m.position.y=y; scene.add(m);
+  }
+  layer(-2,0x0D2A4A,0.25,22); layer(-6,0x0A1E35,0.2,20); layer(-11,0x071525,0.15,18);
+
+  // Water blob
+  const wg=new THREE.SphereGeometry(1.8,12,12);
+  const wm=new THREE.Mesh(wg,new THREE.MeshBasicMaterial({color:0x1E90FF,transparent:true,opacity:0.5}));
+  wm.position.set(-2,-4,1); wm.scale.set(1.5,0.65,1.1); scene.add(wm);
+  const ww=new THREE.Mesh(wg,new THREE.MeshBasicMaterial({color:0x5AADFF,wireframe:true,transparent:true,opacity:0.25}));
+  ww.position.copy(wm.position); ww.scale.copy(wm.scale); scene.add(ww);
+
+  // Cavity box
+  const cg=new THREE.BoxGeometry(2,1,1.8);
+  const cm=new THREE.Mesh(cg,new THREE.MeshBasicMaterial({color:0xC8900A,transparent:true,opacity:0.45}));
+  cm.position.set(3,-2,-1); scene.add(cm);
+  const cw=new THREE.Mesh(cg,new THREE.MeshBasicMaterial({color:0xFFD060,wireframe:true,transparent:true,opacity:0.45}));
+  cw.position.copy(cm.position); scene.add(cw);
+
+  // Mineral
+  const mg2=new THREE.DodecahedronGeometry(1.1,0);
+  const mm2=new THREE.Mesh(mg2,new THREE.MeshBasicMaterial({color:0x39D368,transparent:true,opacity:0.4}));
+  mm2.position.set(-3.5,-7,1.5); scene.add(mm2);
+  const mw2=new THREE.Mesh(mg2,new THREE.MeshBasicMaterial({color:0x7FFFAA,wireframe:true,transparent:true,opacity:0.35}));
+  mw2.position.copy(mm2.position); scene.add(mw2);
+
+  // Scan plane
+  const sp=new THREE.Mesh(new THREE.PlaneGeometry(22,22),new THREE.MeshBasicMaterial({color:0x5AADFF,transparent:true,opacity:0.05,side:THREE.DoubleSide}));
+  sp.rotation.x=-Math.PI/2; scene.add(sp);
+
+  // Points
+  const pts=[];
+  for(let i=0;i<400;i++) pts.push((Math.random()-0.5)*22,-Math.random()*14,(Math.random()-0.5)*22);
+  const pg=new THREE.BufferGeometry();
+  pg.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));
+  scene.add(new THREE.Points(pg,new THREE.PointsMaterial({color:0x1A3A5A,size:0.14})));
+
+  // Touch rotate
+  let theta=0.3,phi=0.45,radius=24,lastX=0,lastY=0,touching=false;
+  canvas.addEventListener('touchstart',e=>{touching=true;lastX=e.touches[0].clientX;lastY=e.touches[0].clientY;},{passive:true});
+  canvas.addEventListener('touchmove',e=>{
+    if(!touching)return;
+    theta-=(e.touches[0].clientX-lastX)*0.012;
+    phi=Math.max(0.15,Math.min(1.3,phi-(e.touches[0].clientY-lastY)*0.009));
+    lastX=e.touches[0].clientX;lastY=e.touches[0].clientY;
+  },{passive:true});
+  canvas.addEventListener('touchend',()=>{touching=false;},{passive:true});
+
+  let t=0;
+  function animate(){
+    requestAnimationFrame(animate);
+    t+=0.01;
+    if(!touching) theta+=0.004;
+    camera.position.x=radius*Math.sin(theta)*Math.cos(phi);
+    camera.position.y=radius*Math.sin(phi)+2;
+    camera.position.z=radius*Math.cos(theta)*Math.cos(phi);
+    camera.lookAt(0,-3,0);
+    sp.position.y=-7+Math.sin(t*0.5)*7;
+    mm2.rotation.y=t*0.5;
+    wm.scale.set(1.5+Math.sin(t)*0.04,0.65,1.1+Math.sin(t)*0.02);
+    const W=canvas.clientWidth,H=canvas.clientHeight;
+    if(canvas.width!==W||canvas.height!==H){renderer.setSize(W,H,false);camera.aspect=W/H;camera.updateProjectionMatrix();}
+    renderer.render(scene,camera);
+  }
+  animate();
+})();
+
+// ── WAVEFORM ──
+(function(){
+  const c=document.getElementById('waveCanvas');
+  const ctx=c.getContext('2d');
+  let ph=0;
+  function draw(){
+    requestAnimationFrame(draw);
+    const W=c.offsetWidth,H=c.offsetHeight;
+    if(c.width!==W)c.width=W; if(c.height!==H)c.height=H;
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle='#1A6FD4'; ctx.lineWidth=1.5;
+    ctx.shadowBlur=5; ctx.shadowColor='#5AADFF';
+    ctx.beginPath();
+    for(let x=0;x<W;x++){
+      const t=x/W;
+      const y=H/2+Math.sin(t*Math.PI*6+ph)*(H*0.35)*Math.sin(t*Math.PI)+(Math.random()-0.5)*2;
+      x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke(); ctx.shadowBlur=0; ph+=0.09;
+  }
+  draw();
+})();
+
+// ── LIVE READINGS ──
+setInterval(()=>{
+  document.getElementById('lv1').textContent=Math.round(247+(Math.random()-0.5)*40);
+  const b1=Math.max(30,Math.min(99,75+(Math.random()-0.5)*15));
+  const b2=Math.max(30,Math.min(99,60+(Math.random()-0.5)*18));
+  const b3=Math.max(50,Math.min(99,88+(Math.random()-0.5)*8));
+  document.getElementById('sb-em').style.width=b1+'%'; document.getElementById('sv-em').textContent=Math.round(b1)+'%';
+  document.getElementById('sb-gpr').style.width=b2+'%'; document.getElementById('sv-gpr').textContent=Math.round(b2)+'%';
+  document.getElementById('sb-ert').style.width=b3+'%'; document.getElementById('sv-ert').textContent=Math.round(b3)+'%';
+  const ert=Math.max(100,1200+(Math.random()-0.5)*300);
+  document.getElementById('lv3').textContent=ert>999?(ert/1000).toFixed(1)+'k':Math.round(ert)+'';
+},950);
+
+// ── CHARTS ──
+let chartsOK=false;
+function drawCharts(){
+  if(chartsOK)return; chartsOK=true;
+  drawLine('chartRes',Array.from({length:16},(_,i)=>i*2.5),
+    Array.from({length:16},(_,i)=>800+Math.sin(i*0.8)*400+(i>7&&i<12?-500:0)+Math.random()*60),
+    '#5AADFF','rgba(90,173,255,0.1)');
+  drawLine('chartGPR',Array.from({length:16},(_,i)=>i*2.5),
+    Array.from({length:16},(_,i)=>20+Math.sin(i*0.6)*8+(i>4&&i<8?14:0)+Math.random()*3),
+    '#C8900A','rgba(200,144,10,0.1)');
+}
+
+function drawLine(id,lbs,data,stroke,fill){
+  const c=document.getElementById(id);
+  if(!c)return;
+  const W=c.offsetWidth||300,H=c.offsetHeight||120;
+  c.width=W; c.height=H;
+  const ctx=c.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  const pad=8,min=Math.min(...data),max=Math.max(...data);
+  const sx=x=>pad+(x/lbs[lbs.length-1])*(W-pad*2);
+  const sy=y=>H-pad-((y-min)/(max-min+1))*(H-pad*2);
+  ctx.strokeStyle='rgba(90,173,255,0.08)'; ctx.lineWidth=0.5;
+  for(let i=0;i<=3;i++){const y=pad+(i/3)*(H-pad*2);ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(W-pad,y);ctx.stroke();}
+  ctx.fillStyle=fill; ctx.beginPath();
+  ctx.moveTo(sx(lbs[0]),sy(data[0]));
+  lbs.forEach((l,i)=>ctx.lineTo(sx(l),sy(data[i])));
+  ctx.lineTo(sx(lbs[lbs.length-1]),H); ctx.lineTo(sx(lbs[0]),H); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle=stroke; ctx.lineWidth=1.5; ctx.shadowBlur=5; ctx.shadowColor=stroke;
+  ctx.beginPath(); ctx.moveTo(sx(lbs[0]),sy(data[0]));
+  lbs.forEach((l,i)=>ctx.lineTo(sx(l),sy(data[i]))); ctx.stroke(); ctx.shadowBlur=0;
+}
+</script>
+</body>
+</html>
