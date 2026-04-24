@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DALENIX — Detecta · Analiza · Protege</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600&display=swap');
+
+:root {
+  --blue-bright: #5AADFF;
+  --blue-mid: #1A6FD4;
+  --blue-dark: #0D4BA0;
+  --gold: #C8900A;
+  --gold-light: #FFD060;
+  --bg: #020814;
+  --bg2: #040F22;
+  --bg3: #071530;
+  --border: rgba(90,173,255,0.18);
+  --border2: rgba(90,173,255,0.32);
+  --text: #A8C8E8;
+  --text2: #6A90B0;
+  --text3: #D8EEFF;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 58px;
+  background: rgba(2,8,20,0.95);
+  border-bottom: 0.5px solid var(--border);
+  flex-shrink: 0;
+  z-index: 100;
+}
+.logo-wrap { display: flex; align-items: center; gap: 12px; }
+.logo-text {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 5px;
+  background: linear-gradient(180deg, #5AADFF 0%, #1A6FD4 60%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.logo-text .a-gold {
+  background: linear-gradient(180deg, #FFD060 0%, #C8900A 70%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.logo-slogan {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  color: rgba(90,173,255,0.45);
+  letter-spacing: 2px;
+}
+.logo-dot { color: rgba(200,144,10,0.7); }
+
+.topbar-center { display: flex; gap: 4px; }
+.nav-btn {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  padding: 7px 14px;
+  border-radius: 6px;
+  border: 0.5px solid transparent;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text2);
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+.nav-btn:hover { color: var(--blue-bright); border-color: var(--border); }
+.nav-btn.active { background: rgba(26,111,212,0.15); color: var(--blue-bright); border-color: var(--border2); }
+
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.status-pill {
+  display: flex; align-items: center; gap: 6px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 0.5px solid;
+}
+.status-pill.online { border-color: rgba(90,173,255,0.35); color: var(--blue-bright); background: rgba(26,111,212,0.1); }
+.status-pill.sim { border-color: rgba(200,144,10,0.35); color: var(--gold-light); background: rgba(200,144,10,0.08); }
+.pulse-dot { width: 6px; height: 6px; border-radius: 50%; animation: blink 2s infinite; }
+.pulse-dot.blue { background: var(--blue-bright); box-shadow: 0 0 5px var(--blue-bright); }
+.pulse-dot.gold { background: var(--gold-light); box-shadow: 0 0 5px var(--gold-light); }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* ── LAYOUT ── */
+.app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── LEFT SIDEBAR ── */
+.sidebar {
+  width: 220px;
+  background: rgba(3,10,28,0.8);
+  border-right: 0.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+.sidebar-section { padding: 16px 14px 8px; }
+.sidebar-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: rgba(90,173,255,0.4);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.sensor-card {
+  background: var(--bg3);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.sensor-card:hover { border-color: var(--border2); }
+.sensor-card.active-s { border-color: var(--blue-bright); background: rgba(26,111,212,0.1); }
+.sensor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.sensor-name { font-family: 'Orbitron', sans-serif; font-size: 9px; color: var(--text3); letter-spacing: 1px; }
+.sensor-toggle {
+  width: 28px; height: 14px;
+  background: rgba(90,173,255,0.15);
+  border-radius: 7px;
+  position: relative;
+  cursor: pointer;
+  border: 0.5px solid var(--border2);
+  transition: background 0.2s;
+}
+.sensor-toggle.on { background: rgba(26,111,212,0.5); }
+.sensor-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--text2);
+  transition: all 0.2s;
+}
+.sensor-toggle.on::after { left: 16px; background: var(--blue-bright); box-shadow: 0 0 4px var(--blue-bright); }
+
+.sensor-bar-wrap { display: flex; align-items: center; gap: 6px; }
+.sensor-bar-track { flex: 1; height: 4px; background: rgba(90,173,255,0.08); border-radius: 2px; overflow: hidden; }
+.sensor-bar-fill { height: 100%; border-radius: 2px; transition: width 0.5s; }
+.sensor-bar-fill.em  { background: linear-gradient(90deg, #5AADFF, rgba(90,173,255,0.3)); }
+.sensor-bar-fill.gpr { background: linear-gradient(90deg, #1A6FD4, rgba(26,111,212,0.3)); }
+.sensor-bar-fill.ert { background: linear-gradient(90deg, #C8900A, rgba(200,144,10,0.3)); }
+.sensor-val { font-family: 'Share Tech Mono', monospace; font-size: 8px; color: var(--text2); min-width: 26px; text-align: right; }
+
+.depth-control { padding: 0 14px 14px; }
+.depth-label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.depth-val-big { font-family: 'Orbitron', sans-serif; font-size: 16px; color: var(--text3); }
+input[type=range] {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 4px;
+  background: rgba(90,173,255,0.15);
+  border-radius: 2px;
+  outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--blue-bright);
+  box-shadow: 0 0 6px var(--blue-bright);
+  cursor: pointer;
+}
+
+.scan-btn {
+  margin: 4px 14px 14px;
+  width: calc(100% - 28px);
+  padding: 11px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 9px;
+  letter-spacing: 2px;
+  border: 0.5px solid var(--border2);
+  border-radius: 8px;
+  background: rgba(26,111,212,0.15);
+  color: var(--blue-bright);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+.scan-btn:hover { background: rgba(26,111,212,0.3); box-shadow: 0 0 10px rgba(90,173,255,0.15); }
+.scan-btn.scanning { background: rgba(200,144,10,0.2); color: var(--gold-light); border-color: rgba(200,144,10,0.4); animation: scanpulse 1s infinite; }
+@keyframes scanpulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+
+.projects-list { padding: 0 14px 14px; }
+.project-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 0.5px solid transparent;
+  transition: all 0.2s;
+  margin-bottom: 4px;
+}
+.project-item:hover { background: rgba(90,173,255,0.05); border-color: var(--border); }
+.project-item.active-p { background: rgba(26,111,212,0.1); border-color: var(--border2); }
+.project-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.project-dot.c1 { background: #5AADFF; }
+.project-dot.c2 { background: #C8900A; }
+.project-dot.c3 { background: #39D368; }
+.project-name { font-size: 11px; color: var(--text); flex: 1; }
+.project-date { font-family: 'Share Tech Mono', monospace; font-size: 8px; color: var(--text2); }
+
+/* ── MAIN CONTENT ── */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* PAGES */
+.page { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+.page.active { display: flex; }
+
+/* ── SCAN PAGE ── */
+.scan-layout { display: flex; flex: 1; overflow: hidden; }
+.map3d-wrap {
+  flex: 1;
+  position: relative;
+  background: #010810;
+  overflow: hidden;
+}
+#threeCanvas { display: block; width: 100%; height: 100%; }
+.map-overlay {
+  position: absolute;
+  top: 12px; left: 12px;
+  display: flex; flex-direction: column; gap: 6px;
+  pointer-events: none;
+}
+.map-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: rgba(2,8,20,0.8);
+  border: 0.5px solid var(--border);
+  color: var(--blue-bright);
+  backdrop-filter: blur(4px);
+}
+.map-controls {
+  position: absolute;
+  bottom: 14px; right: 14px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.map-ctrl-btn {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  background: rgba(2,8,20,0.85);
+  border: 0.5px solid var(--border);
+  color: var(--blue-bright);
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  backdrop-filter: blur(4px);
+}
+.map-ctrl-btn:hover { border-color: var(--border2); }
+
+.legend-wrap {
+  position: absolute;
+  bottom: 14px; left: 14px;
+  background: rgba(2,8,20,0.85);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  backdrop-filter: blur(4px);
+}
+.legend-title { font-family: 'Orbitron', sans-serif; font-size: 8px; color: rgba(90,173,255,0.5); letter-spacing: 1.5px; margin-bottom: 8px; }
+.legend-item { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
+.legend-color { width: 12px; height: 12px; border-radius: 3px; }
+.legend-label { font-size: 10px; color: var(--text); }
+
+/* RIGHT PANEL */
+.right-panel {
+  width: 260px;
+  background: rgba(3,10,28,0.8);
+  border-left: 0.5px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+.rp-section { padding: 14px 14px 8px; border-bottom: 0.5px solid var(--border); }
+.rp-title { font-family: 'Orbitron', sans-serif; font-size: 9px; letter-spacing: 2px; color: rgba(90,173,255,0.55); margin-bottom: 10px; }
+
+.anomaly-card {
+  background: var(--bg3);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.anomaly-card:hover { border-color: var(--border2); }
+.anomaly-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.anomaly-type { font-family: 'Orbitron', sans-serif; font-size: 9px; color: var(--text3); }
+.anomaly-conf {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 3px;
+}
+.anomaly-conf.high { background: rgba(57,211,104,0.1); border: 0.5px solid rgba(57,211,104,0.3); color: #39D368; }
+.anomaly-conf.med  { background: rgba(200,144,10,0.1); border: 0.5px solid rgba(200,144,10,0.3); color: var(--gold-light); }
+.anomaly-conf.low  { background: rgba(90,173,255,0.1); border: 0.5px solid var(--border); color: var(--blue-bright); }
+.anomaly-depth { font-size: 11px; color: var(--text2); }
+
+.readings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.reading-card {
+  background: var(--bg3);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 10px;
+  text-align: center;
+}
+.reading-val { font-family: 'Orbitron', sans-serif; font-size: 14px; color: var(--text3); }
+.reading-label { font-family: 'Share Tech Mono', monospace; font-size: 8px; color: var(--text2); margin-top: 3px; }
+
+.waveform-wrap { height: 70px; position: relative; margin-top: 4px; }
+canvas.waveform { width: 100%; height: 100%; }
+
+/* ── ANALYSIS PAGE ── */
+.analysis-page {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+.analysis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.a-card {
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+}
+.a-card-title { font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 2px; color: rgba(90,173,255,0.6); margin-bottom: 14px; }
+.chart-area { height: 140px; position: relative; }
+canvas.chart { width: 100%; height: 100%; }
+.stat-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 0.5px solid var(--border); }
+.stat-row:last-child { border-bottom: none; }
+.stat-key { font-size: 11px; color: var(--text2); }
+.stat-val { font-family: 'Orbitron', sans-serif; font-size: 12px; color: var(--text3); }
+.ai-result {
+  background: var(--bg2);
+  border: 0.5px solid rgba(200,144,10,0.3);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 14px;
+}
+.ai-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.ai-icon { width: 28px; height: 28px; border-radius: 6px; background: rgba(200,144,10,0.15); border: 0.5px solid rgba(200,144,10,0.3); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.ai-title { font-family: 'Orbitron', sans-serif; font-size: 10px; color: var(--gold-light); letter-spacing: 1.5px; }
+.ai-body { font-size: 12px; color: var(--text); line-height: 1.7; }
+.ai-tags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+.ai-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(26,111,212,0.12);
+  border: 0.5px solid var(--border2);
+  color: var(--blue-bright);
+}
+
+/* ── REPORTS PAGE ── */
+.reports-page { padding: 20px 24px; overflow-y: auto; flex: 1; }
+.reports-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.page-title { font-family: 'Orbitron', sans-serif; font-size: 14px; color: var(--text3); letter-spacing: 2px; }
+.action-btn {
+  padding: 8px 16px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  border-radius: 6px;
+  border: 0.5px solid;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.action-btn.primary { background: rgba(26,111,212,0.2); border-color: var(--border2); color: var(--blue-bright); }
+.action-btn.primary:hover { background: rgba(26,111,212,0.35); }
+.action-btn.gold { background: rgba(200,144,10,0.15); border-color: rgba(200,144,10,0.35); color: var(--gold-light); }
+.report-table { width: 100%; border-collapse: collapse; }
+.report-table th {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  color: rgba(90,173,255,0.5);
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 0.5px solid var(--border);
+  text-transform: uppercase;
+}
+.report-table td {
+  font-size: 12px;
+  padding: 11px 12px;
+  border-bottom: 0.5px solid rgba(90,173,255,0.07);
+  color: var(--text);
+  vertical-align: middle;
+}
+.report-table tr:hover td { background: rgba(90,173,255,0.03); }
+.type-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.type-badge.agua { background: rgba(90,173,255,0.1); border: 0.5px solid var(--border2); color: var(--blue-bright); }
+.type-badge.cavidad { background: rgba(200,144,10,0.1); border: 0.5px solid rgba(200,144,10,0.3); color: var(--gold-light); }
+.type-badge.mineral { background: rgba(57,211,104,0.1); border: 0.5px solid rgba(57,211,104,0.3); color: #39D368; }
+
+/* ── CONFIG PAGE ── */
+.config-page { padding: 20px 24px; overflow-y: auto; flex: 1; }
+.config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.config-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 12px; padding: 18px; }
+.config-title { font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 2px; color: rgba(90,173,255,0.6); margin-bottom: 14px; }
+.config-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.config-key { font-size: 12px; color: var(--text); }
+.config-val { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text3); }
+select.cfg-select {
+  background: var(--bg3);
+  border: 0.5px solid var(--border2);
+  border-radius: 6px;
+  color: var(--text3);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  padding: 5px 8px;
+  cursor: pointer;
+  outline: none;
+}
+.conn-status {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg3);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.conn-name { font-size: 12px; color: var(--text); flex: 1; }
+.conn-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+.conn-badge.sim { background: rgba(200,144,10,0.12); border: 0.5px solid rgba(200,144,10,0.3); color: var(--gold-light); }
+.conn-badge.off { background: rgba(168,200,232,0.08); border: 0.5px solid rgba(168,200,232,0.18); color: var(--text2); }
+.conn-btn {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 8px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 0.5px solid var(--border2);
+  background: rgba(26,111,212,0.15);
+  color: var(--blue-bright);
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+.conn-btn:hover { background: rgba(26,111,212,0.3); }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(90,173,255,0.2); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo-wrap">
+    <div>
+      <div class="logo-text">D<span class="a-gold">A</span>LENIX</div>
+      <div class="logo-slogan">Detecta <span class="logo-dot">·</span> Analiza <span class="logo-dot">·</span> Protege</div>
+    </div>
+  </div>
+  <div class="topbar-center">
+    <button class="nav-btn active" onclick="showPage('scan',this)">◈ Escaneo 3D</button>
+    <button class="nav-btn" onclick="showPage('analysis',this)">⬡ Análisis IA</button>
+    <button class="nav-btn" onclick="showPage('reports',this)">☰ Reportes</button>
+    <button class="nav-btn" onclick="showPage('config',this)">⚙ Configuración</button>
+  </div>
+  <div class="topbar-right">
+    <div class="status-pill sim"><div class="pulse-dot gold"></div>MODO SIM</div>
+    <div class="status-pill online"><div class="pulse-dot blue"></div>SISTEMA OK</div>
+  </div>
+</div>
+
+<div class="app-body">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-label">Sensores</div>
+
+    <div class="sensor-card active-s" id="sc-em" onclick="toggleSensor('em')">
+      <div class="sensor-header">
+        <div class="sensor-name">EM — Electromagn.</div>
+        <div class="sensor-toggle on" id="tog-em"></div>
+      </div>
+      <div class="sensor-bar-wrap">
+        <div class="sensor-bar-track"><div class="sensor-bar-fill em" id="bar-em" style="width:75%"></div></div>
+        <div class="sensor-val" id="val-em">75%</div>
+      </div>
+    </div>
+
+    <div class="sensor-card active-s" id="sc-gpr" onclick="toggleSensor('gpr')">
+      <div class="sensor-header">
+        <div class="sensor-name">GPR — Georadar</div>
+        <div class="sensor-toggle on" id="tog-gpr"></div>
+      </div>
+      <div class="sensor-bar-wrap">
+        <div class="sensor-bar-track"><div class="sensor-bar-fill gpr" id="bar-gpr" style="width:60%"></div></div>
+        <div class="sensor-val" id="val-gpr">60%</div>
+      </div>
+    </div>
+
+    <div class="sensor-card active-s" id="sc-ert" onclick="toggleSensor('ert')">
+      <div class="sensor-header">
+        <div class="sensor-name">ERT — Tomografía</div>
+        <div class="sensor-toggle on" id="tog-ert"></div>
+      </div>
+      <div class="sensor-bar-wrap">
+        <div class="sensor-bar-track"><div class="sensor-bar-fill ert" id="bar-ert" style="width:88%"></div></div>
+        <div class="sensor-val" id="val-ert">88%</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="depth-control">
+    <div class="sidebar-label">Profundidad objetivo</div>
+    <div class="depth-label-row">
+      <div class="sensor-name">RANGO</div>
+      <div class="depth-val-big"><span id="depthVal">40</span>m</div>
+    </div>
+    <input type="range" min="1" max="200" value="40" id="depthSlider" oninput="updateDepth(this.value)">
+    <div style="display:flex;justify-content:space-between;margin-top:4px;">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text2)">1m</span>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text2)">200m</span>
+    </div>
+  </div>
+
+  <div style="padding:0 14px;">
+    <button class="scan-btn" id="scanBtn" onclick="startScan()">▶ INICIAR ESCANEO</button>
+  </div>
+
+  <div class="sidebar-section" style="flex:1;">
+    <div class="sidebar-label">Proyectos recientes</div>
+    <div class="projects-list">
+      <div class="project-item active-p" onclick="loadProject(this,'Rancho San Miguel')">
+        <div class="project-dot c1"></div>
+        <div class="project-name">Rancho San Miguel</div>
+        <div class="project-date">Hoy</div>
+      </div>
+      <div class="project-item" onclick="loadProject(this,'Obra Tepic Norte')">
+        <div class="project-dot c2"></div>
+        <div class="project-name">Obra Tepic Norte</div>
+        <div class="project-date">22 Abr</div>
+      </div>
+      <div class="project-item" onclick="loadProject(this,'Mina El Refugio')">
+        <div class="project-dot c3"></div>
+        <div class="project-name">Mina El Refugio</div>
+        <div class="project-date">18 Abr</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-content">
+
+  <!-- PAGE: SCAN -->
+  <div class="page active" id="page-scan">
+    <div class="scan-layout">
+      <div class="map3d-wrap">
+        <canvas id="threeCanvas"></canvas>
+        <div class="map-overlay">
+          <div class="map-badge" id="scanStatus">● ESCANEO ACTIVO — Rancho San Miguel</div>
+          <div class="map-badge" id="depthBadge">PROFUNDIDAD: 40m</div>
+          <div class="map-badge" id="pointsBadge">PUNTOS: 1,024</div>
+        </div>
+        <div class="map-controls">
+          <div class="map-ctrl-btn" title="Rotar" onclick="resetCamera()">⟳</div>
+          <div class="map-ctrl-btn" title="Zoom +" onclick="zoomIn()">+</div>
+          <div class="map-ctrl-btn" title="Zoom -" onclick="zoomOut()">−</div>
+        </div>
+        <div class="legend-wrap">
+          <div class="legend-title">ANOMALÍAS DETECTADAS</div>
+          <div class="legend-item"><div class="legend-color" style="background:#1E90FF"></div><div class="legend-label">Agua / Acuífero</div></div>
+          <div class="legend-item"><div class="legend-color" style="background:#C8900A"></div><div class="legend-label">Cavidad / Vacío</div></div>
+          <div class="legend-item"><div class="legend-color" style="background:#39D368"></div><div class="legend-label">Mineral / Roca</div></div>
+          <div class="legend-item"><div class="legend-color" style="background:#FF4444"></div><div class="legend-label">Zona de riesgo</div></div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="rp-section">
+          <div class="rp-title">ANOMALÍAS DETECTADAS</div>
+          <div class="anomaly-card" onclick="focusAnomaly(0)">
+            <div class="anomaly-header">
+              <div class="anomaly-type">💧 Acuífero</div>
+              <div class="anomaly-conf high">94%</div>
+            </div>
+            <div class="anomaly-depth">Profundidad: 18–24m · Ext: ~120m²</div>
+          </div>
+          <div class="anomaly-card" onclick="focusAnomaly(1)">
+            <div class="anomaly-header">
+              <div class="anomaly-type">⬡ Cavidad</div>
+              <div class="anomaly-conf med">71%</div>
+            </div>
+            <div class="anomaly-depth">Profundidad: 8–12m · Ext: ~30m²</div>
+          </div>
+          <div class="anomaly-card" onclick="focusAnomaly(2)">
+            <div class="anomaly-header">
+              <div class="anomaly-type">◆ Mineral</div>
+              <div class="anomaly-conf low">55%</div>
+            </div>
+            <div class="anomaly-depth">Profundidad: 32–38m · Ext: ~60m²</div>
+          </div>
+        </div>
+
+        <div class="rp-section">
+          <div class="rp-title">LECTURAS EN TIEMPO REAL</div>
+          <div class="readings-grid">
+            <div class="reading-card">
+              <div class="reading-val" id="rv1">247</div>
+              <div class="reading-label">mV EM</div>
+            </div>
+            <div class="reading-card">
+              <div class="reading-val" id="rv2">18.4</div>
+              <div class="reading-label">ns GPR</div>
+            </div>
+            <div class="reading-card">
+              <div class="reading-val" id="rv3">1.2k</div>
+              <div class="reading-label">Ω·m ERT</div>
+            </div>
+            <div class="reading-card">
+              <div class="reading-val" id="rv4">40</div>
+              <div class="reading-label">m PROF</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rp-section" style="flex:1">
+          <div class="rp-title">SEÑAL EM</div>
+          <div class="waveform-wrap">
+            <canvas class="waveform" id="waveCanvas"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: ANALYSIS -->
+  <div class="page" id="page-analysis">
+    <div class="analysis-page">
+      <div class="ai-result">
+        <div class="ai-header">
+          <div class="ai-icon">🤖</div>
+          <div>
+            <div class="ai-title">ANÁLISIS IA — DALENIX ENGINE v1.0</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text2);margin-top:2px">Rancho San Miguel · 24 Abr 2026 · Confianza global: 87%</div>
+          </div>
+        </div>
+        <div class="ai-body">
+          Se detectó un <strong style="color:#5AADFF">acuífero freático de alto potencial</strong> a 18–24m de profundidad con extensión estimada de 120m². La resistividad eléctrica indica saturación hídrica alta (ERT: 1.2 kΩ·m). Se recomienda perforación en coordenada marcada para extracción óptima.<br><br>
+          También se identificó una <strong style="color:var(--gold-light)">cavidad subterránea</strong> a 8–12m que representa riesgo geotécnico moderado. Se advierte evitar construcción sobre esta zona sin estudios adicionales.
+        </div>
+        <div class="ai-tags">
+          <span class="ai-tag">Acuífero confirmado</span>
+          <span class="ai-tag">Riesgo geotécnico Z2</span>
+          <span class="ai-tag">Perforación recomendada</span>
+          <span class="ai-tag">Profundidad óptima: 20m</span>
+          <span class="ai-tag">Conductividad alta</span>
+        </div>
+      </div>
+
+      <div class="analysis-grid">
+        <div class="a-card">
+          <div class="a-card-title">PERFIL DE RESISTIVIDAD</div>
+          <div class="chart-area"><canvas class="chart" id="chartRes"></canvas></div>
+        </div>
+        <div class="a-card">
+          <div class="a-card-title">SEÑAL GPR — PROFUNDIDAD</div>
+          <div class="chart-area"><canvas class="chart" id="chartGPR"></canvas></div>
+        </div>
+        <div class="a-card">
+          <div class="a-card-title">ESTADÍSTICAS DEL ESCANEO</div>
+          <div class="stat-row"><span class="stat-key">Área escaneada</span><span class="stat-val">320 m²</span></div>
+          <div class="stat-row"><span class="stat-key">Puntos de datos</span><span class="stat-val">1,024</span></div>
+          <div class="stat-row"><span class="stat-key">Duración</span><span class="stat-val">14 min</span></div>
+          <div class="stat-row"><span class="stat-key">Sensores activos</span><span class="stat-val">3 / 3</span></div>
+          <div class="stat-row"><span class="stat-key">Anomalías</span><span class="stat-val">3 detectadas</span></div>
+        </div>
+        <div class="a-card">
+          <div class="a-card-title">MAPA DE CALOR EM</div>
+          <div class="chart-area"><canvas class="chart" id="chartEM"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: REPORTS -->
+  <div class="page" id="page-reports">
+    <div class="reports-page">
+      <div class="reports-header">
+        <div class="page-title">REPORTES Y ESCANEOS</div>
+        <div style="display:flex;gap:8px;">
+          <button class="action-btn primary">+ Nuevo Escaneo</button>
+          <button class="action-btn gold">⬇ Exportar PDF</button>
+        </div>
+      </div>
+      <table class="report-table">
+        <thead>
+          <tr>
+            <th>Proyecto</th>
+            <th>Fecha</th>
+            <th>Profundidad</th>
+            <th>Tipo</th>
+            <th>Confianza</th>
+            <th>Estado</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Rancho San Miguel</td>
+            <td style="font-family:'Share Tech Mono',monospace;font-size:10px;">24 Abr 2026</td>
+            <td>40m</td>
+            <td><span class="type-badge agua">Agua</span></td>
+            <td style="color:#39D368;font-family:'Orbitron',sans-serif;font-size:11px;">94%</td>
+            <td><span style="color:#39D368;font-size:10px;">● Completado</span></td>
+            <td><button class="action-btn primary" style="padding:5px 10px;font-size:7px;">Ver</button></td>
+          </tr>
+          <tr>
+            <td>Obra Tepic Norte</td>
+            <td style="font-family:'Share Tech Mono',monospace;font-size:10px;">22 Abr 2026</td>
+            <td>12m</td>
+            <td><span class="type-badge cavidad">Cavidad</span></td>
+            <td style="color:var(--gold-light);font-family:'Orbitron',sans-serif;font-size:11px;">71%</td>
+            <td><span style="color:var(--gold-light);font-size:10px;">● En revisión</span></td>
+            <td><button class="action-btn primary" style="padding:5px 10px;font-size:7px;">Ver</button></td>
+          </tr>
+          <tr>
+            <td>Mina El Refugio</td>
+            <td style="font-family:'Share Tech Mono',monospace;font-size:10px;">18 Abr 2026</td>
+            <td>80m</td>
+            <td><span class="type-badge mineral">Mineral</span></td>
+            <td style="color:#5AADFF;font-family:'Orbitron',sans-serif;font-size:11px;">61%</td>
+            <td><span style="color:#5AADFF;font-size:10px;">● Completado</span></td>
+            <td><button class="action-btn primary" style="padding:5px 10px;font-size:7px;">Ver</button></td>
+          </tr>
+          <tr>
+            <td>Ejido Los Fresnos</td>
+            <td style="font-family:'Share Tech Mono',monospace;font-size:10px;">10 Abr 2026</td>
+            <td>25m</td>
+            <td><span class="type-badge agua">Agua</span></td>
+            <td style="color:#39D368;font-family:'Orbitron',sans-serif;font-size:11px;">88%</td>
+            <td><span style="color:#39D368;font-size:10px;">● Completado</span></td>
+            <td><button class="action-btn primary" style="padding:5px 10px;font-size:7px;">Ver</button></td>
+          </tr>
+          <tr>
+            <td>Constructora GAMA</td>
+            <td style="font-family:'Share Tech Mono',monospace;font-size:10px;">05 Abr 2026</td>
+            <td>18m</td>
+            <td><span class="type-badge cavidad">Cavidad</span></td>
+            <td style="color:#FF4444;font-family:'Orbitron',sans-serif;font-size:11px;">83%</td>
+            <td><span style="color:#FF4444;font-size:10px;">⚠ Riesgo Alto</span></td>
+            <td><button class="action-btn gold" style="padding:5px 10px;font-size:7px;">Ver</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PAGE: CONFIG -->
+  <div class="page" id="page-config">
+    <div class="config-page">
+      <div style="margin-bottom:18px;">
+        <div class="page-title">CONFIGURACIÓN DEL SISTEMA</div>
+      </div>
+      <div class="config-grid">
+        <div class="config-card">
+          <div class="config-title">PARÁMETROS DE ESCANEO</div>
+          <div class="config-row">
+            <span class="config-key">Modo de operación</span>
+            <select class="cfg-select">
+              <option>Simulado</option>
+              <option>Hardware real</option>
+              <option>Mixto</option>
+            </select>
+          </div>
+          <div class="config-row">
+            <span class="config-key">Frecuencia EM</span>
+            <select class="cfg-select">
+              <option>10 kHz</option>
+              <option>50 kHz</option>
+              <option>100 kHz</option>
+            </select>
+          </div>
+          <div class="config-row">
+            <span class="config-key">Resolución 3D</span>
+            <select class="cfg-select">
+              <option>Alta (1024 pts)</option>
+              <option>Media (512 pts)</option>
+              <option>Baja (256 pts)</option>
+            </select>
+          </div>
+          <div class="config-row">
+            <span class="config-key">Umbral IA</span>
+            <select class="cfg-select">
+              <option>50% confianza</option>
+              <option>70% confianza</option>
+              <option>90% confianza</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="config-card">
+          <div class="config-title">CONEXIÓN DE HARDWARE</div>
+          <div class="conn-status">
+            <div class="pulse-dot gold" style="width:7px;height:7px;flex-shrink:0;border-radius:50%;"></div>
+            <div class="conn-name">Sensor EM — ESP32</div>
+            <div class="conn-badge sim">SIM</div>
+            <button class="conn-btn">Conectar</button>
+          </div>
+          <div class="conn-status">
+            <div style="width:7px;height:7px;flex-shrink:0;border-radius:50%;background:rgba(168,200,232,0.2);"></div>
+            <div class="conn-name">GPR Compacto</div>
+            <div class="conn-badge off">OFF</div>
+            <button class="conn-btn">Conectar</button>
+          </div>
+          <div class="conn-status">
+            <div style="width:7px;height:7px;flex-shrink:0;border-radius:50%;background:rgba(168,200,232,0.2);"></div>
+            <div class="conn-name">ERT Mini — Electrodos</div>
+            <div class="conn-badge off">OFF</div>
+            <button class="conn-btn">Conectar</button>
+          </div>
+          <div class="conn-status" style="margin-top:4px;">
+            <div class="pulse-dot blue" style="width:7px;height:7px;flex-shrink:0;border-radius:50%;"></div>
+            <div class="conn-name">Tablet / Pantalla</div>
+            <div class="conn-badge sim" style="background:rgba(26,111,212,0.12);border-color:rgba(90,173,255,0.3);color:#5AADFF;">OK</div>
+            <button class="conn-btn">Config</button>
+          </div>
+        </div>
+
+        <div class="config-card">
+          <div class="config-title">INFORMACIÓN DEL DISPOSITIVO</div>
+          <div class="stat-row"><span class="stat-key">Versión firmware</span><span class="stat-val">v1.0.0-sim</span></div>
+          <div class="stat-row"><span class="stat-key">Modelo</span><span class="stat-val">DALENIX Portátil</span></div>
+          <div class="stat-row"><span class="stat-key">Batería</span><span class="stat-val" style="color:#39D368;">87%</span></div>
+          <div class="stat-row"><span class="stat-key">Almacenamiento</span><span class="stat-val">2.1 / 16 GB</span></div>
+          <div class="stat-row"><span class="stat-key">Último sync</span><span class="stat-val">Hoy 10:42</span></div>
+        </div>
+
+        <div class="config-card">
+          <div class="config-title">DATOS Y EXPORTACIÓN</div>
+          <div class="config-row" style="margin-bottom:10px;">
+            <span class="config-key">Formato exportación</span>
+            <select class="cfg-select">
+              <option>PDF + CSV</option>
+              <option>Solo PDF</option>
+              <option>Solo CSV</option>
+              <option>JSON</option>
+            </select>
+          </div>
+          <div class="config-row">
+            <span class="config-key">Sincronizar nube</span>
+            <select class="cfg-select">
+              <option>Automático</option>
+              <option>Manual</option>
+              <option>Desactivado</option>
+            </select>
+          </div>
+          <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="action-btn primary">⬆ Subir datos</button>
+            <button class="action-btn gold">🗑 Limpiar caché</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main-content -->
+</div><!-- /app-body -->
+
+<script>
+// ── PAGE NAVIGATION ──
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'analysis') drawCharts();
+}
+
+// ── SENSOR TOGGLES ──
+const sensorState = { em: true, gpr: true, ert: true };
+function toggleSensor(s) {
+  sensorState[s] = !sensorState[s];
+  document.getElementById('tog-' + s).classList.toggle('on', sensorState[s]);
+  document.getElementById('sc-' + s).classList.toggle('active-s', sensorState[s]);
+  if (!sensorState[s]) {
+    document.getElementById('bar-' + s).style.width = '0%';
+    document.getElementById('val-' + s).textContent = 'OFF';
+  }
+}
+
+// ── DEPTH SLIDER ──
+function updateDepth(v) {
+  document.getElementById('depthVal').textContent = v;
+  document.getElementById('depthBadge').textContent = 'PROFUNDIDAD: ' + v + 'm';
+  document.getElementById('rv4').textContent = v;
+}
+
+// ── SCAN BUTTON ──
+let scanning = false;
+function startScan() {
+  const btn = document.getElementById('scanBtn');
+  scanning = !scanning;
+  if (scanning) {
+    btn.textContent = '■ DETENER ESCANEO';
+    btn.classList.add('scanning');
+    document.getElementById('scanStatus').textContent = '● ESCANEANDO... Rancho San Miguel';
+  } else {
+    btn.textContent = '▶ INICIAR ESCANEO';
+    btn.classList.remove('scanning');
+    document.getElementById('scanStatus').textContent = '● ESCANEO ACTIVO — Rancho San Miguel';
+  }
+}
+
+// ── PROJECTS ──
+function loadProject(el, name) {
+  document.querySelectorAll('.project-item').forEach(p => p.classList.remove('active-p'));
+  el.classList.add('active-p');
+  document.getElementById('scanStatus').textContent = '● ESCANEO ACTIVO — ' + name;
+}
+
+// ── THREE.JS 3D MAP ──
+(function() {
+  const canvas = document.getElementById('threeCanvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x010810);
+  scene.fog = new THREE.FogExp2(0x010810, 0.035);
+
+  const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 200);
+  camera.position.set(0, 14, 22);
+  camera.lookAt(0, 0, 0);
+
+  // Grid floor
+  const gridHelper = new THREE.GridHelper(30, 30, 0x1A3A5A, 0x0D2035);
+  scene.add(gridHelper);
+
+  // Ground layers
+  function makeLayer(y, color, opacity, size) {
+    const geo = new THREE.PlaneGeometry(size, size);
+    const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity, side: THREE.DoubleSide });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.position.y = y;
+    scene.add(mesh);
+  }
+  makeLayer(-2, 0x0D2A4A, 0.3, 28);
+  makeLayer(-5, 0x0A1E35, 0.25, 26);
+  makeLayer(-9, 0x071525, 0.2, 24);
+  makeLayer(-14, 0x050F1A, 0.18, 22);
+
+  // Anomaly: Water (blue blob)
+  const waterGeo = new THREE.SphereGeometry(2.2, 16, 16);
+  const waterMat = new THREE.MeshBasicMaterial({ color: 0x1E90FF, transparent: true, opacity: 0.55, wireframe: false });
+  const water = new THREE.Mesh(waterGeo, waterMat);
+  water.position.set(-2, -4, 1);
+  water.scale.set(1.6, 0.7, 1.2);
+  scene.add(water);
+  // wireframe outline
+  const waterWire = new THREE.Mesh(waterGeo, new THREE.MeshBasicMaterial({ color: 0x5AADFF, wireframe: true, transparent: true, opacity: 0.3 }));
+  waterWire.position.copy(water.position);
+  waterWire.scale.copy(water.scale);
+  scene.add(waterWire);
+
+  // Anomaly: Cavity (gold)
+  const cavGeo = new THREE.BoxGeometry(2.5, 1.2, 2);
+  const cavMat = new THREE.MeshBasicMaterial({ color: 0xC8900A, transparent: true, opacity: 0.5, wireframe: false });
+  const cavity = new THREE.Mesh(cavGeo, cavMat);
+  cavity.position.set(3, -2, -1.5);
+  scene.add(cavity);
+  const cavWire = new THREE.Mesh(cavGeo, new THREE.MeshBasicMaterial({ color: 0xFFD060, wireframe: true, transparent: true, opacity: 0.5 }));
+  cavWire.position.copy(cavity.position);
+  scene.add(cavWire);
+
+  // Anomaly: Mineral (green)
+  const minGeo = new THREE.DodecahedronGeometry(1.4, 0);
+  const minMat = new THREE.MeshBasicMaterial({ color: 0x39D368, transparent: true, opacity: 0.45 });
+  const mineral = new THREE.Mesh(minGeo, minMat);
+  mineral.position.set(-4, -8, 2);
+  scene.add(mineral);
+  const minWire = new THREE.Mesh(minGeo, new THREE.MeshBasicMaterial({ color: 0x7FFFAA, wireframe: true, transparent: true, opacity: 0.4 }));
+  minWire.position.copy(mineral.position);
+  scene.add(minWire);
+
+  // Scan plane animation
+  const scanGeo = new THREE.PlaneGeometry(28, 28);
+  const scanMat = new THREE.MeshBasicMaterial({ color: 0x5AADFF, transparent: true, opacity: 0.06, side: THREE.DoubleSide });
+  const scanPlane = new THREE.Mesh(scanGeo, scanMat);
+  scanPlane.rotation.x = -Math.PI / 2;
+  scene.add(scanPlane);
+
+  // Point cloud for soil
+  const pts = [];
+  for (let i = 0; i < 800; i++) {
+    pts.push((Math.random() - 0.5) * 26, -(Math.random() * 16), (Math.random() - 0.5) * 26);
+  }
+  const ptGeo = new THREE.BufferGeometry();
+  ptGeo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+  const ptMat = new THREE.PointsMaterial({ color: 0x1A3A5A, size: 0.12 });
+  scene.add(new THREE.Points(ptGeo, ptMat));
+
+  // Mouse rotation
+  let isDragging = false, prevX = 0, prevY = 0, theta = 0, phi = 0.5, radius = 28;
+  canvas.addEventListener('mousedown', e => { isDragging = true; prevX = e.clientX; prevY = e.clientY; });
+  canvas.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    theta -= (e.clientX - prevX) * 0.008;
+    phi = Math.max(0.1, Math.min(1.4, phi - (e.clientY - prevY) * 0.006));
+    prevX = e.clientX; prevY = e.clientY;
+  });
+  canvas.addEventListener('mouseup', () => isDragging = false);
+  canvas.addEventListener('wheel', e => { radius = Math.max(10, Math.min(50, radius + e.deltaY * 0.05)); });
+
+  // Touch support
+  let lastTouch = null;
+  canvas.addEventListener('touchstart', e => { lastTouch = e.touches[0]; });
+  canvas.addEventListener('touchmove', e => {
+    if (!lastTouch) return;
+    theta -= (e.touches[0].clientX - lastTouch.clientX) * 0.01;
+    phi = Math.max(0.1, Math.min(1.4, phi - (e.touches[0].clientY - lastTouch.clientY) * 0.008));
+    lastTouch = e.touches[0];
+  });
+
+  window.resetCamera = () => { theta = 0; phi = 0.5; radius = 28; };
+  window.zoomIn = () => { radius = Math.max(10, radius - 3); };
+  window.zoomOut = () => { radius = Math.min(50, radius + 3); };
+
+  let t = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    t += 0.01;
+
+    // Auto-rotate if not dragging
+    if (!isDragging) theta += 0.003;
+
+    camera.position.x = radius * Math.sin(theta) * Math.cos(phi);
+    camera.position.y = radius * Math.sin(phi) + 2;
+    camera.position.z = radius * Math.cos(theta) * Math.cos(phi);
+    camera.lookAt(0, -3, 0);
+
+    // Animate scan plane
+    scanPlane.position.y = -8 + Math.sin(t * 0.5) * 8;
+    scanMat.opacity = 0.03 + Math.abs(Math.sin(t * 0.5)) * 0.06;
+
+    // Pulse anomalies
+    water.scale.set(1.6 + Math.sin(t) * 0.05, 0.7, 1.2 + Math.sin(t) * 0.03);
+    mineral.rotation.y = t * 0.5;
+
+    // Resize
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (canvas.width !== w || canvas.height !== h) {
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+
+// Focus anomaly camera angles
+window.focusAnomaly = function(idx) {
+  // Just a visual cue; full camera targeting would require exported refs
+};
+
+// ── LIVE READINGS SIMULATION ──
+(function() {
+  const vals = [
+    { id: 'rv1', base: 247, range: 30, suffix: '' },
+    { id: 'rv2', base: 18.4, range: 2, suffix: '' },
+    { id: 'bar-em', isBar: true, base: 75, range: 10 },
+    { id: 'bar-gpr', isBar: true, base: 60, range: 12 },
+    { id: 'bar-ert', isBar: true, base: 88, range: 8 },
+  ];
+  setInterval(() => {
+    if (sensorState.em) {
+      const v = Math.round(247 + (Math.random() - 0.5) * 40);
+      document.getElementById('rv1').textContent = v;
+      const b = Math.max(30, Math.min(99, 75 + (Math.random() - 0.5) * 15));
+      document.getElementById('bar-em').style.width = b + '%';
+      document.getElementById('val-em').textContent = Math.round(b) + '%';
+    }
+    if (sensorState.gpr) {
+      document.getElementById('rv2').textContent = (18 + (Math.random() - 0.5) * 3).toFixed(1);
+      const b = Math.max(30, Math.min(99, 60 + (Math.random() - 0.5) * 18));
+      document.getElementById('bar-gpr').style.width = b + '%';
+      document.getElementById('val-gpr').textContent = Math.round(b) + '%';
+    }
+    if (sensorState.ert) {
+      const b = Math.max(50, Math.min(99, 88 + (Math.random() - 0.5) * 8));
+      document.getElementById('bar-ert').style.width = b + '%';
+      document.getElementById('val-ert').textContent = Math.round(b) + '%';
+    }
+    document.getElementById('pointsBadge').textContent = 'PUNTOS: ' + (1024 + Math.floor(Math.random() * 50)).toLocaleString();
+  }, 900);
+})();
+
+// ── WAVEFORM ──
+(function() {
+  const canvas = document.getElementById('waveCanvas');
+  const ctx = canvas.getContext('2d');
+  let phase = 0;
+  function drawWave() {
+    requestAnimationFrame(drawWave);
+    const W = canvas.offsetWidth, H = canvas.offsetHeight;
+    if (canvas.width !== W) canvas.width = W;
+    if (canvas.height !== H) canvas.height = H;
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = '#1A6FD4';
+    ctx.lineWidth = 1.5;
+    ctx.shadowBlur = 6;
+    ctx.shadowColor = '#5AADFF';
+    ctx.beginPath();
+    for (let x = 0; x < W; x++) {
+      const t = x / W;
+      const y = H / 2 + Math.sin(t * Math.PI * 6 + phase) * (H * 0.35) * Math.sin(t * Math.PI) + (Math.random() - 0.5) * 3;
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    phase += 0.08;
+  }
+  drawWave();
+})();
+
+// ── CHARTS ──
+let chartsDrawn = false;
+function drawCharts() {
+  if (chartsDrawn) return;
+  chartsDrawn = true;
+
+  // Chart: Resistivity profile
+  drawLineChart('chartRes',
+    Array.from({length:20}, (_,i) => i*2),
+    Array.from({length:20}, (_,i) => 800 + Math.sin(i*0.8)*400 + (i>8&&i<14?-500:0) + Math.random()*80),
+    '#5AADFF', 'rgba(90,173,255,0.1)'
+  );
+  // Chart: GPR depth
+  drawLineChart('chartGPR',
+    Array.from({length:20}, (_,i) => i*2),
+    Array.from({length:20}, (_,i) => 20 + Math.sin(i*0.6)*8 + (i>5&&i<9?15:0) + Math.random()*4),
+    '#C8900A', 'rgba(200,144,10,0.1)'
+  );
+  // Chart: EM heatmap (fake bar chart)
+  drawBarChart('chartEM');
+}
+
+function drawLineChart(id, labels, data, stroke, fill) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  const W = canvas.offsetWidth || 300, H = canvas.offsetHeight || 140;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+  const pad = 10;
+  const min = Math.min(...data), max = Math.max(...data);
+  const sx = x => pad + (x / (labels[labels.length-1]||1)) * (W - pad*2);
+  const sy = y => H - pad - ((y - min) / (max - min + 1)) * (H - pad*2);
+  // Fill
+  ctx.beginPath();
+  ctx.moveTo(sx(labels[0]), sy(data[0]));
+  labels.forEach((l,i) => ctx.lineTo(sx(l), sy(data[i])));
+  ctx.lineTo(sx(labels[labels.length-1]), H);
+  ctx.lineTo(sx(labels[0]), H);
+  ctx.closePath();
+  ctx.fillStyle = fill;
+  ctx.fill();
+  // Line
+  ctx.strokeStyle = stroke;
+  ctx.lineWidth = 1.5;
+  ctx.shadowBlur = 6; ctx.shadowColor = stroke;
+  ctx.beginPath();
+  ctx.moveTo(sx(labels[0]), sy(data[0]));
+  labels.forEach((l,i) => ctx.lineTo(sx(l), sy(data[i])));
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+  // Grid lines
+  ctx.strokeStyle = 'rgba(90,173,255,0.08)';
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad + (i / 4) * (H - pad*2);
+    ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W-pad, y); ctx.stroke();
+  }
+}
+
+function drawBarChart(id) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  const W = canvas.offsetWidth || 300, H = canvas.offsetHeight || 140;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+  const cols = 20, pad = 8;
+  const bw = (W - pad*2) / cols - 2;
+  for (let i = 0; i < cols; i++) {
+    const h = 20 + Math.random() * (H - 40);
+    const intensity = h / H;
+    const r = Math.round(30 * (1-intensity) + 26 * intensity);
+    const g = Math.round(90 * (1-intensity) + 111 * intensity);
+    const b = Math.round(200 * (1-intensity) + 212 * intensity);
+    ctx.fillStyle = `rgba(${r+intensity*100},${g},${b+40},${0.4+intensity*0.5})`;
+    ctx.fillRect(pad + i*(bw+2), H - pad - h, bw, h);
+  }
+}
+</script>
+</body>
+</html>

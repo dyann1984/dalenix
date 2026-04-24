@@ -1,0 +1,26 @@
+{
+  "name": "DALENIX — Exploración Subterránea",
+  "short_name": "DALENIX",
+  "description": "Detecta · Analiza · Protege — Sistema de exploración subterránea con IA y visualización 3D",
+  "start_url": "/DALENIX_Mobile.html",
+  "display": "standalone",
+  "background_color": "#020814",
+  "theme_color": "#020814",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "productivity"],
+  "lang": "es-MX"
+}
