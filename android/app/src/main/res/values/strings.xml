@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">DALENIX</string>
+    <string name="title_activity_main">DALENIX</string>
+    <string name="package_name">com.dalenix.app</string>
+    <string name="custom_url_scheme">com.dalenix.app</string>
+</resources>
